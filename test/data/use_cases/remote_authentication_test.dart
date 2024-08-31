@@ -21,26 +21,52 @@ void main() {
     httpClient = HttpClientSpy();
     sut = RemoteAuthentication(httpClient: httpClient, url: url);
     params = AuthenticationParams(
-        email: faker.internet.email(), password: faker.internet.password());
-    When callHttpClienRequest() => when(() =>
-        httpClient.request(url: url, method: 'post', body: any(named: 'body')));
+      email: faker.internet.email(),
+      password: faker.internet.password(),
+    );
+    When callHttpClienRequest() => when(
+          () => httpClient.request(
+            url: url,
+            method: 'post',
+            body: any(named: 'body'),
+          ),
+        );
     callHttpClienRequest().thenAnswer((_) async {});
   });
 
   test("Should call HttpClient with correct values", () async {
     await sut.auth(params);
 
-    verify(() => httpClient.request(
-        url: url,
-        method: 'post',
-        body: {'email': params.email, 'password': params.password}));
+    verify(
+      () => httpClient.request(
+          url: url,
+          method: 'post',
+          body: {'email': params.email, 'password': params.password}),
+    );
   });
 
   test("Should throws UnexpectedError if HttpClient returns 400", () async {
-    when(() => httpClient.request(
+    when(
+      () => httpClient.request(
         url: any(named: 'url'),
         method: any(named: 'method'),
-        body: any(named: 'body'))).thenThrow(HttpError.badRequest);
+        body: any(named: 'body'),
+      ),
+    ).thenThrow(HttpError.badRequest);
+
+    final future = sut.auth(params);
+
+    expect(future, throwsA(DomainError.unexpected));
+  });
+
+  test("Should throws UnexpectedError if HttpClient returns 404", () async {
+    when(
+      () => httpClient.request(
+        url: any(named: 'url'),
+        method: any(named: 'method'),
+        body: any(named: 'body'),
+      ),
+    ).thenThrow(HttpError.notFound);
 
     final future = sut.auth(params);
 
