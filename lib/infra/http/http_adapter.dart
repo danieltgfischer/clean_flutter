@@ -19,7 +19,10 @@ class HttpAdapter implements HttpClient {
     };
     final response =
         await client.post(Uri.parse(url), headers: headers, body: body);
-    if (response.body.isEmpty) return null;
+    return _handleResponse(response);
+  }
+
+  Map? _handleResponse(Response response) {
     if (response.statusCode == 200) {
       return response.body.isEmpty ? null : jsonDecode(response.body);
     }
