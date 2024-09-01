@@ -18,6 +18,9 @@ class HttpAdapter {
     final response =
         await client.post(Uri.parse(url), headers: headers, body: body);
     if (response.body.isEmpty) return null;
-    return jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return response.body.isEmpty ? null : jsonDecode(response.body);
+    }
+    return null;
   }
 }
