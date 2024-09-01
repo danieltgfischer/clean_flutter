@@ -20,18 +20,18 @@ void main() {
     sut = HttpAdapter(client);
     uri = Uri.parse(url);
     registerFallbackValue(uri);
-    anyAnswer = '{"any_key": "any_value"}';
   });
-  When mockRequest() => when(() => client.post(
-        any(),
-        headers: any(named: 'headers'),
-        body: any(named: 'body'),
-      ));
-
-  void mockAnswer(String? data, int statusCode) =>
-      mockRequest().thenAnswer((_) async => Response(data ?? '', statusCode));
   group('post', () {
+    When mockRequest() => when(() => client.post(
+          any(),
+          headers: any(named: 'headers'),
+          body: any(named: 'body'),
+        ));
+
+    void mockAnswer(String? data, int statusCode) =>
+        mockRequest().thenAnswer((_) async => Response(data ?? '', statusCode));
     setUp(() {
+      anyAnswer = '{"any_key": "any_value"}';
       mockAnswer(null, 200);
     });
     test('Should call post with correct values', () async {
