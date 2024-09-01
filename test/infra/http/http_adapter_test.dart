@@ -26,20 +26,33 @@ void main() {
         () => client.post(
           any(),
           headers: any(named: 'headers'),
+          body: any(named: 'body'),
         ),
       ).thenAnswer((_) async => Response('', 200));
     });
     test('Should call post with correct values', () async {
-      await sut.request(
-        url: url,
-        method: 'post',
-      );
+      final headers = {
+        'content-type': 'application/json',
+        'accept': 'application/json'
+      };
+      final body = {'any_key': 'any_value'};
+      await sut.request(url: url, method: 'post', body: body);
 
       verify(
-        () => client.post(uri, headers: {
-          'content-type': 'application/json',
-          'accept': 'application/json'
-        }),
+        () => client.post(uri, headers: headers, body: body),
+      );
+    });
+
+    test('Should call post without body', () async {
+      final headers = {
+        'content-type': 'application/json',
+        'accept': 'application/json'
+      };
+      final body = {'any_key': 'any_value'};
+      await sut.request(url: url, method: 'post');
+
+      verify(
+        () => client.post(uri, headers: headers),
       );
     });
   });
