@@ -29,7 +29,7 @@ void main() {
       ));
 
   void mockAnswer(String? data, int statusCode) =>
-      mockRequest().thenAnswer((_) async => Response(data ?? '{}', statusCode));
+      mockRequest().thenAnswer((_) async => Response(data ?? '', statusCode));
   group('post', () {
     setUp(() {
       mockAnswer(null, 200);
@@ -63,6 +63,12 @@ void main() {
       mockAnswer(anyAnswer, 200);
       final response = await sut.request(url: url, method: 'post');
       expect(response, {"any_key": "any_value"});
+    });
+
+    test('Should return null if post returns 200 with no data', () async {
+      mockAnswer(null, 200);
+      final response = await sut.request(url: url, method: 'post');
+      expect(response, null);
     });
   });
 }
