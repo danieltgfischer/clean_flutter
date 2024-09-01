@@ -22,12 +22,25 @@ void main() {
   });
   group('post', () {
     setUp(() {
-      when(() => client.post(any())).thenAnswer((_) async => Response('', 200));
+      when(
+        () => client.post(
+          any(),
+          headers: any(named: 'headers'),
+        ),
+      ).thenAnswer((_) async => Response('', 200));
     });
     test('Should call post with correct values', () async {
-      await sut.request(url: url, method: 'post');
+      await sut.request(
+        url: url,
+        method: 'post',
+      );
 
-      verify(() => client.post(uri));
+      verify(
+        () => client.post(uri, headers: {
+          'content-type': 'application/json',
+          'accept': 'application/json'
+        }),
+      );
     });
   });
 }
