@@ -12,6 +12,7 @@ void main() {
   late ClientSpy client;
   late HttpAdapter sut;
   late Uri uri;
+  late String anyAnswer;
 
   setUp(() {
     url = faker.internet.httpUrl();
@@ -19,16 +20,19 @@ void main() {
     sut = HttpAdapter(client);
     uri = Uri.parse(url);
     registerFallbackValue(uri);
+    anyAnswer = '{"any_key": "any_value"}';
   });
+  When mockRequest() => when(() => client.post(
+        any(),
+        headers: any(named: 'headers'),
+        body: any(named: 'body'),
+      ));
+
+  void mockAnswer(String? data, int statusCode) =>
+      mockRequest().thenAnswer((_) async => Response(data ?? '{}', statusCode));
   group('post', () {
     setUp(() {
-      when(
-        () => client.post(
-          any(),
-          headers: any(named: 'headers'),
-          body: any(named: 'body'),
-        ),
-      ).thenAnswer((_) async => Response('', 200));
+      mockAnswer(null, 200);
     });
     test('Should call post with correct values', () async {
       final headers = {
@@ -48,12 +52,17 @@ void main() {
         'content-type': 'application/json',
         'accept': 'application/json'
       };
-      final body = {'any_key': 'any_value'};
       await sut.request(url: url, method: 'post');
 
       verify(
         () => client.post(uri, headers: headers),
       );
+    });
+
+    test('Should return data if post returns 200 ', () async {
+      mockAnswer(anyAnswer, 200);
+      final response = await sut.request(url: url, method: 'post');
+      expect(response, {"any_key": "any_value"});
     });
   });
 }
