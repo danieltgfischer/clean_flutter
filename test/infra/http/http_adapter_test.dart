@@ -1,10 +1,10 @@
-import 'package:clean_flutter/data/http/http_error.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:faker/faker.dart';
 import 'package:http/http.dart';
 import 'package:mocktail/mocktail.dart';
 
-import 'package:clean_flutter/infra/http/http.dart';
+import 'package:ForDev/data/http/http.dart';
+import 'package:ForDev/infra/http/http.dart';
 
 class ClientSpy extends Mock implements Client {}
 
