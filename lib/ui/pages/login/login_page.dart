@@ -24,43 +24,12 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Builder(builder: (context) {
         widget.presenter?.isLoadingStream.listen((isLoading) {
-          if (!mounted) return;
-          if (isLoading == true && context.mounted) {
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) {
-                return const SimpleDialog(
-                  children: <Widget>[
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        CircularProgressIndicator(),
-                        SizedBox(height: 10),
-                        Text('Aguarde...', textAlign: TextAlign.center),
-                      ],
-                    ),
-                  ],
-                );
-              },
-            );
-          } else {
-            if (context.mounted) {
-              if (Navigator.canPop(context)) {
-                Navigator.of(context).pop();
-              }
-            }
-          }
+          if (context.mounted) handleProgressIndicator(context, isLoading);
         });
 
         widget.presenter?.mainErrorStream.listen((error) {
-          if (error != null && context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                backgroundColor: Colors.red[900],
-                content: Text(error, textAlign: TextAlign.center),
-              ),
-            );
+          if (context.mounted) {
+            showErrorMessage(context, error);
           }
         });
 
