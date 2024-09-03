@@ -116,4 +116,20 @@ void main() {
 
     expect(errorText, findsOneWidget);
   });
+
+  testWidgets('Should emits no error if password is valid', (tester) async {
+    await loadLoing(tester);
+    passwordStreamController.add('');
+    await tester.pump();
+    final passwordTextChildren = find.descendant(
+      of: find.bySemanticsLabel('Senha'),
+      matching: find.byType(Text),
+    );
+    expect(passwordTextChildren, findsOneWidget);
+
+    passwordStreamController.add(null);
+    await tester.pump();
+
+    expect(passwordTextChildren, findsOneWidget);
+  });
 }
