@@ -19,27 +19,15 @@ void main() {
   late StreamController<bool?> isLoadingStreamController;
   late StreamController<String?> mainErrorController;
 
-  setUp(() {
-    email = faker.internet.email();
-    password = faker.internet.email();
-    presenter = LoginPresenterSpy();
+  void initStreams() {
     emailStreamController = StreamController<String?>();
     passwordStreamController = StreamController<String?>();
     isFormValidController = StreamController<bool?>();
     isLoadingStreamController = StreamController<bool?>();
     mainErrorController = StreamController<String?>();
-  });
+  }
 
-  tearDown(() {
-    emailStreamController.close();
-    passwordStreamController.close();
-    isFormValidController.close();
-    isLoadingStreamController.close();
-    mainErrorController.close();
-  });
-
-  Future<void> loadPage(WidgetTester tester) async {
-    final loginPage = MaterialApp(home: LoginPage(presenter));
+  void mockStreams() {
     when(() => presenter.emailErrorStream)
         .thenAnswer((_) => emailStreamController.stream);
     when(() => presenter.passwordErrorStream)
@@ -50,7 +38,30 @@ void main() {
         .thenAnswer((_) => isLoadingStreamController.stream);
     when(() => presenter.mainErrorStream)
         .thenAnswer((_) => mainErrorController.stream);
+  }
 
+  void closeStreams() {
+    emailStreamController.close();
+    passwordStreamController.close();
+    isFormValidController.close();
+    isLoadingStreamController.close();
+    mainErrorController.close();
+  }
+
+  setUp(() {
+    initStreams();
+    email = faker.internet.email();
+    password = faker.internet.email();
+    presenter = LoginPresenterSpy();
+  });
+
+  tearDown(() {
+    closeStreams();
+  });
+
+  Future<void> loadPage(WidgetTester tester) async {
+    mockStreams();
+    final loginPage = MaterialApp(home: LoginPage(presenter));
     await tester.pumpWidget(loginPage);
   }
 
