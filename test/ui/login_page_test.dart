@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:faker/faker.dart';
@@ -11,15 +13,19 @@ void main() {
   late String email;
   late String password;
   late LoginPresenter presenter;
+  late StreamController<String> emailStreamController;
 
   setUp(() {
     email = faker.internet.email();
     password = faker.internet.email();
     presenter = LoginPresenterSpy();
+    emailStreamController = StreamController<String>();
   });
 
   Future<void> loadLoing(WidgetTester tester) async {
     final loginPage = MaterialApp(home: LoginPage(presenter));
+    when(() => presenter.emailErrorStream)
+        .thenAnswer((_) => emailStreamController.stream);
 
     await tester.pumpWidget(loginPage);
   }
@@ -64,5 +70,15 @@ void main() {
     await tester.enterText(passwordInput, password);
 
     verify(() => presenter.validatePassword(password));
+  });
+
+  testWidgets('Should emits message error if emails is invalid',
+      (tester) async {
+    await loadLoing(tester);
+    const error = 'any_error';
+    emailStreamController.add(error);
+    await tester.pump();
+    final textError = find.text(error);
+    expect(textError, findsOne);
   });
 }
