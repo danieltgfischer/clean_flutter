@@ -1,12 +1,32 @@
-import 'package:ForDev/ui/pages/pages.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/material.dart';
+import 'package:faker/faker.dart';
+import 'package:mocktail/mocktail.dart';
+
+import 'package:ForDev/ui/pages/pages.dart';
+
+class LoginPresenterSpy extends Mock implements LoginPresenter {}
 
 void main() {
-  testWidgets('Should load with correct initial state', (tester) async {
-    const loginPage = MaterialApp(home: LoginPage());
+  late String email;
+  late String password;
+  late LoginPresenter presenter;
+
+  setUp(() {
+    email = faker.internet.email();
+    password = faker.internet.email();
+    presenter = LoginPresenterSpy();
+  });
+
+  Future<void> loadLoing(WidgetTester tester) async {
+    final loginPage = MaterialApp(home: LoginPage(presenter));
 
     await tester.pumpWidget(loginPage);
+  }
+
+  testWidgets('Should load with correct initial state', (tester) async {
+    await loadLoing(tester);
+
     final emailTextChildren = find.descendant(
       of: find.bySemanticsLabel('Email'),
       matching: find.byType(Text),
@@ -31,5 +51,18 @@ void main() {
 
     final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
     expect(button.onPressed, null);
+  });
+
+  testWidgets('Should call validate with input values', (tester) async {
+    await loadLoing(tester);
+    final emailInput = find.bySemanticsLabel('Email');
+    await tester.enterText(emailInput, email);
+
+    verify(() => presenter.validateEmail(email));
+
+    final passwordInput = find.bySemanticsLabel('Senha');
+    await tester.enterText(passwordInput, password);
+
+    verify(() => presenter.validatePassword(password));
   });
 }
