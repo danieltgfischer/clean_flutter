@@ -15,6 +15,7 @@ void main() {
   late LoginPresenter presenter;
   late StreamController<String?> emailStreamController;
   late StreamController<String?> passwordStreamController;
+  late StreamController<bool?> formStreamController;
 
   setUp(() {
     email = faker.internet.email();
@@ -22,11 +23,13 @@ void main() {
     presenter = LoginPresenterSpy();
     emailStreamController = StreamController<String?>();
     passwordStreamController = StreamController<String?>();
+    formStreamController = StreamController<bool?>();
   });
 
   tearDown(() {
     emailStreamController.close();
     passwordStreamController.close();
+    formStreamController.close();
   });
 
   Future<void> loadLoing(WidgetTester tester) async {
@@ -35,6 +38,8 @@ void main() {
         .thenAnswer((_) => emailStreamController.stream);
     when(() => presenter.passwordErrorStream)
         .thenAnswer((_) => passwordStreamController.stream);
+    when(() => presenter.isFormValidStream)
+        .thenAnswer((_) => formStreamController.stream);
 
     await tester.pumpWidget(loginPage);
   }
@@ -131,5 +136,33 @@ void main() {
     await tester.pump();
 
     expect(passwordTextChildren, findsOneWidget);
+  });
+
+  testWidgets('Should enable login button if form is valid', (tester) async {
+    await loadLoing(tester);
+    formStreamController.add(true);
+    await tester.pump();
+
+    final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+
+    expect(button.enabled, true);
+  });
+
+  testWidgets('Should desable login button if form is invalid', (tester) async {
+    await loadLoing(tester);
+    formStreamController.add(null);
+    await tester.pump();
+
+    ElevatedButton button =
+        tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+
+    expect(button.enabled, false);
+
+    formStreamController.add(false);
+    await tester.pumpAndSettle();
+
+    button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+
+    expect(button.enabled, false);
   });
 }
