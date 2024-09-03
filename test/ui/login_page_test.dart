@@ -14,22 +14,27 @@ void main() {
   late String password;
   late LoginPresenter presenter;
   late StreamController<String?> emailStreamController;
+  late StreamController<String?> passwordStreamController;
 
   setUp(() {
     email = faker.internet.email();
     password = faker.internet.email();
     presenter = LoginPresenterSpy();
     emailStreamController = StreamController<String?>();
+    passwordStreamController = StreamController<String?>();
   });
 
-  tearDown(() async {
-    await emailStreamController.close();
+  tearDown(() {
+    emailStreamController.close();
+    passwordStreamController.close();
   });
 
   Future<void> loadLoing(WidgetTester tester) async {
     final loginPage = MaterialApp(home: LoginPage(presenter));
     when(() => presenter.emailErrorStream)
         .thenAnswer((_) => emailStreamController.stream);
+    when(() => presenter.passwordErrorStream)
+        .thenAnswer((_) => passwordStreamController.stream);
 
     await tester.pumpWidget(loginPage);
   }
@@ -99,5 +104,16 @@ void main() {
     await tester.pump();
 
     expect(emailTextChildren, findsOneWidget);
+  });
+
+  testWidgets('Should emits message error if password is invalid',
+      (tester) async {
+    await loadLoing(tester);
+    const error = 'any_error';
+    passwordStreamController.add(error);
+    await tester.pump();
+    final errorText = find.text(error);
+
+    expect(errorText, findsOneWidget);
   });
 }
