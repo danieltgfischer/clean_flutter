@@ -13,13 +13,17 @@ void main() {
   late String email;
   late String password;
   late LoginPresenter presenter;
-  late StreamController<String> emailStreamController;
+  late StreamController<String?> emailStreamController;
 
   setUp(() {
     email = faker.internet.email();
     password = faker.internet.email();
     presenter = LoginPresenterSpy();
-    emailStreamController = StreamController<String>();
+    emailStreamController = StreamController<String?>();
+  });
+
+  tearDown(() async {
+    await emailStreamController.close();
   });
 
   Future<void> loadLoing(WidgetTester tester) async {
@@ -72,13 +76,28 @@ void main() {
     verify(() => presenter.validatePassword(password));
   });
 
-  testWidgets('Should emits message error if emails is invalid',
-      (tester) async {
+  testWidgets('Should emits message error if email is invalid', (tester) async {
     await loadLoing(tester);
     const error = 'any_error';
     emailStreamController.add(error);
     await tester.pump();
     final textError = find.text(error);
     expect(textError, findsOne);
+  });
+
+  testWidgets('Should emits no error if email is valid', (tester) async {
+    await loadLoing(tester);
+    emailStreamController.add('');
+    await tester.pump();
+    final emailTextChildren = find.descendant(
+      of: find.bySemanticsLabel('Email'),
+      matching: find.byType(Text),
+    );
+    expect(emailTextChildren, findsOneWidget);
+
+    emailStreamController.add(null);
+    await tester.pump();
+
+    expect(emailTextChildren, findsOneWidget);
   });
 }
