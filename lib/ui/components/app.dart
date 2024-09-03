@@ -54,7 +54,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: '4Dev',
-      home: const LoginPage(),
+      home: LoginPage(null),
       theme: ThemeData(
           primaryColor: const Color.fromARGB(255, 171, 92, 134),
           primaryColorDark: primaryColorDark,
