@@ -53,6 +53,7 @@ void main() {
     email = faker.internet.email();
     password = faker.internet.email();
     presenter = LoginPresenterSpy();
+    mockStreams();
   });
 
   tearDown(() {
@@ -60,7 +61,6 @@ void main() {
   });
 
   Future<void> loadPage(WidgetTester tester) async {
-    mockStreams();
     final loginPage = MaterialApp(home: LoginPage(presenter));
     await tester.pumpWidget(loginPage);
   }
