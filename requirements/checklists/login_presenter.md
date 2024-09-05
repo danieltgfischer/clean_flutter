@@ -2,7 +2,7 @@
 
 > ## Regras
 
-1. Validar email com o Validation
+1. ✅ Validar email com o Validation
 2. Notificar o emailErrorStream com o resultado do Validation
 3. Notificar o isFormValidStream após validar o email
 4. Validar senha com o Validation
